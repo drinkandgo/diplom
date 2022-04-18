@@ -2,8 +2,10 @@ import asyncio
 import ssl
 import sys
 from nats.aio.client import Client as NATS
+import json
+import collector
 
-async def example():
+async def send_monitoring_data():
 
    # [begin connect_userpass]
    nc = NATS()
@@ -16,11 +18,13 @@ async def example():
       future.set_result(msg)
 
 #connecting
-   await nc.connect(servers=["nats://demo.nats.io:4222"], tls=ssl_ctx)
+   await nc.connect(servers=["nats://demo.nats.io:4222"], #tls=ssl_ctx
+                     )
 
 #subscribing
-   await nc.publish("dc.notify.76fb136d-44ba-44bc-8c5e-adec00c149c1", cb=cb)
-   msg = await asyncio.wait_for(future, 100)
+   await nc.publish("updates", json.dumps(collector.data_storage).encode())
+   collector.data_storage.clear()
+
 
 
 
